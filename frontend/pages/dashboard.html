@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Device Restricted App</title>
+    <link rel="stylesheet" href="../css/common.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="navbar">
+            <h1>Dashboard</h1>
+            <div class="nav-actions">
+                <span id="userInfo">Loading...</span>
+                <button id="logoutButton" class="logout-button">Logout</button>
+            </div>
+        </nav>
+        <main class="main-content">
+            <div class="welcome-card">
+                <h2>Welcome to the Dashboard!</h2>
+                <p>You have successfully logged in with secure device-restricted authentication.</p>
+                
+                <div class="device-info-section">
+                    <h4>Device Information</h4>
+                    <div class="device-info">
+                        <div class="mb-2">
+                            <small><strong>Device ID:</strong> <span id="deviceId">Loading...</span></small>
+                        </div>
+                        <div id="deviceDetails">
+                            <p>Loading device details...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="security-features mt-4">
+                    <h5>Security Features Active:</h5>
+                    <ul class="list-unstyled">
+                        <li>✅ Hardware-based device binding</li>
+                        <li>✅ Encrypted device credentials</li>
+                        <li>✅ Real-time integrity validation</li>
+                        <li>✅ Copy-resistant authentication</li>
+                    </ul>
+                </div>
+                
+                <div id="debugInfo" style="display: none;"></div>
+            </div>
+        </main>
+    </div>
+    <script src="../js/storage.js"></script>
+    <script src="../js/device.js"></script>
+    <script src="../js/dashboard.js"></script>
+</body>
+</html>
