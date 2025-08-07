@@ -113,11 +113,34 @@ class AuthService {
         throw new Error('Invalid credentials');
       }
 
-      // Generate token
-      const token = await tokenService.generateToken(
-        user.id,
-        deviceService.generateDeviceHash(deviceHash)
-      );
+      // Process device hash
+      const processedHash = deviceService.generateDeviceHash(deviceHash);
+
+      // Ensure no active session exists on a different device
+      const conflictingToken = await prisma.token.findFirst({
+        where: {
+          userId: user.id,
+          isValid: true,
+          expiresAt: {
+            gt: new Date()
+          },
+          deviceHash: {
+            not: processedHash
+          }
+        }
+      });
+
+      if (conflictingToken) {
+        throw new Error(
+          'Device mismatch. This account is registered to a different device.'
+        );
+      }
+
+      // Invalidate existing tokens to ensure single session
+      await tokenService.invalidateAllUserTokens(user.id);
+
+      // Generate new token for this device
+      const token = await tokenService.generateToken(user.id, processedHash);
 
       return {
         user: {

@@ -35,12 +35,29 @@ async function initializeDashboard() {
 
     // Display secure device information
     await displaySecureDeviceInfo();
+    dashboardComponents.setupDeviceCopy();
+
+    // Populate security status
+    const authSince = document.getElementById('authSinceText');
+    if (authSince) authSince.textContent = new Date().toLocaleTimeString();
+
+    // Record initial activity
+    dashboardComponents.addActivity('Login successful');
 
     // Setup logout button
     setupLogoutButton();
 
     // Setup periodic token validation
     setupTokenValidation();
+
+    // Quick action listeners
+    const refreshBtn = document.getElementById('refreshSession');
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', async () => {
+        await verifyToken();
+        dashboardComponents.addActivity('Session refreshed');
+      });
+    }
 
   } catch (error) {
     console.error('Error in dashboard initialization:', error);
@@ -52,24 +69,24 @@ async function initializeDashboard() {
  * Display user information
  */
 async function displayUserInfo() {
-  const userInfoElement = document.getElementById('userInfo');
+  const userNameEl = document.getElementById('userName');
 
-  if (!userInfoElement) return;
+  if (!userNameEl) return;
 
   try {
     const userData = getUserData();
 
     if (userData) {
-      userInfoElement.textContent = `Welcome, ${userData.username || userData.name || 'User'}!`;
+      userNameEl.textContent = `${userData.username || userData.name || 'User'}`;
     } else {
       // Try to fetch user data from API
       const profile = await getUserProfile();
       updateUserData(profile);
-      userInfoElement.textContent = `Welcome, ${profile.username || profile.name || 'User'}!`;
+      userNameEl.textContent = `${profile.username || profile.name || 'User'}`;
     }
   } catch (error) {
     console.error('Error displaying user info:', error);
-    userInfoElement.textContent = 'Welcome, User!';
+    userNameEl.textContent = 'User';
   }
 }
 
@@ -78,44 +95,27 @@ async function displayUserInfo() {
  */
 async function displaySecureDeviceInfo() {
   try {
-    const deviceInfo = await getDeviceInfo();
+    const info = await getDeviceInfo();
 
-    // Display device ID
-    const deviceIdElement = document.getElementById('deviceId');
-    if (deviceIdElement) {
-      deviceIdElement.textContent = deviceInfo.deviceIdTruncated || 'Unknown';
-    }
+    const idEl = document.getElementById('deviceId');
+    if (idEl) idEl.textContent = info.deviceIdTruncated || 'Unknown';
 
-    // Display device details
-    const deviceDetailsElement = document.getElementById('deviceDetails');
-    if (deviceDetailsElement) {
-      const statusColor = deviceInfo.integrityValid ? 'text-success' : 'text-warning';
-      const statusText = deviceInfo.integrityValid ? 'Valid' : 'Warning';
+    const platformEl = document.getElementById('devicePlatform');
+    if (platformEl) platformEl.textContent = info.platform || 'Unknown';
 
-      deviceDetailsElement.innerHTML = `
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>Platform:</strong> ${deviceInfo.platform || 'Unknown'}</p>
-                        <p><strong>Architecture:</strong> ${deviceInfo.arch || 'Unknown'}</p>
-                        <p><strong>Hostname:</strong> ${deviceInfo.hostname || 'Unknown'}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Status:</strong> <span class="${statusColor}">${statusText}</span></p>
-                        <p><strong>Bound:</strong> ${deviceInfo.bindTime ? new Date(deviceInfo.bindTime).toLocaleDateString() : 'Unknown'}</p>
-                        <p><strong>Last Check:</strong> ${new Date().toLocaleTimeString()}</p>
-                    </div>
-                </div>
-                ${!deviceInfo.integrityValid ? `<div class="alert alert-warning mt-2"><small>Device integrity warning: ${deviceInfo.integrityReason || 'Unknown issue'}</small></div>` : ''}
-            `;
-    }
+    const regEl = document.getElementById('deviceRegistered');
+    if (regEl) regEl.textContent = info.bindTime ? new Date(info.bindTime).toLocaleString() : 'Unknown';
 
+    const lastValEl = document.getElementById('deviceLastValidation');
+    if (lastValEl) lastValEl.textContent = new Date().toLocaleString();
+
+    const integrityEl = document.getElementById('deviceIntegrity');
+    if (integrityEl) integrityEl.textContent = info.integrityValid ? '100% 🟢' : '0% 🔴';
+
+    const statusEl = document.getElementById('deviceStatusText');
+    if (statusEl) statusEl.textContent = info.integrityValid ? 'Active' : 'Warning';
   } catch (error) {
     console.error('Error displaying secure device info:', error);
-
-    const deviceIdElement = document.getElementById('deviceId');
-    if (deviceIdElement) {
-      deviceIdElement.textContent = 'Error loading device info';
-    }
   }
 }
 
@@ -157,28 +157,25 @@ function createDeviceWarningContainer() {
  */
 function setupLogoutButton() {
   const logoutButton = document.getElementById('logoutButton');
+  const secureLogout = document.getElementById('secureLogout');
 
-  if (!logoutButton) return;
-
-  logoutButton.addEventListener('click', async (e) => {
+  const handler = async (e) => {
     e.preventDefault();
 
+    const btn = e.currentTarget;
     try {
-      // Show loading state
-      logoutButton.disabled = true;
-      logoutButton.textContent = 'Logging out...';
-
-      // Perform logout
+      btn.disabled = true;
+      btn.textContent = 'Logging out...';
       await performLogout();
-
     } catch (error) {
       console.error('Logout error:', error);
-
-      // Still clear local data and redirect
       clearAuthData();
       window.location.href = './login.html';
     }
-  });
+  };
+
+  if (logoutButton) logoutButton.addEventListener('click', handler);
+  if (secureLogout) secureLogout.addEventListener('click', handler);
 }
 
 /**
@@ -273,16 +270,14 @@ document.addEventListener('keydown', (e) => {
  * Initialize dashboard styles
  */
 function initializeDashboardStyles() {
-  // Add any dynamic styling here
-  const navbar = document.querySelector('.navbar');
-  if (navbar) {
-    navbar.style.animation = 'fadeIn 0.5s ease-out';
+  const header = document.querySelector('.dashboard-header');
+  if (header) {
+    header.style.animation = 'fadeIn 0.5s ease-out';
   }
 
-  const welcomeCard = document.querySelector('.welcome-card');
-  if (welcomeCard) {
-    welcomeCard.style.animation = 'fadeIn 0.5s ease-out 0.2s both';
-  }
+  document.querySelectorAll('.status-card').forEach((card, idx) => {
+    card.style.animation = `fadeIn 0.5s ease-out ${idx * 0.1}s both`;
+  });
 }
 
 // Call style initialization

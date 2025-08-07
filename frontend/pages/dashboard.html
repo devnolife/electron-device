@@ -1,53 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard - Device Restricted App</title>
-    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/common.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+    <link rel="stylesheet" href="../css/animations.css" />
 </head>
 <body>
-    <div class="dashboard-container">
-        <nav class="navbar">
-            <h1>Dashboard</h1>
-            <div class="nav-actions">
-                <span id="userInfo">Loading...</span>
-                <button id="logoutButton" class="logout-button">Logout</button>
+    <div class="dashboard">
+        <header class="dashboard-header">
+            <div class="logo">🔒 SecureAuth</div>
+            <div class="header-user">User: <span id="userName">...</span></div>
+            <div class="header-actions">
+                <button id="settingsBtn" class="text-button">Settings</button>
+                <button id="logoutButton" class="primary-button">Logout</button>
             </div>
-        </nav>
-        <main class="main-content">
-            <div class="welcome-card">
-                <h2>Welcome to the Dashboard!</h2>
-                <p>You have successfully logged in with secure device-restricted authentication.</p>
-                
-                <div class="device-info-section">
-                    <h4>Device Information</h4>
-                    <div class="device-info">
-                        <div class="mb-2">
-                            <small><strong>Device ID:</strong> <span id="deviceId">Loading...</span></small>
-                        </div>
-                        <div id="deviceDetails">
-                            <p>Loading device details...</p>
-                        </div>
+        </header>
+
+        <main class="dashboard-main">
+            <section class="status-overview">
+                <div class="status-card" id="deviceStatusCard">
+                    <span class="status-icon">🛡️</span>
+                    <div class="status-text">
+                        <h3>Device Bound</h3>
+                        <p id="deviceStatusText">Checking...</p>
                     </div>
                 </div>
-                
-                <div class="security-features mt-4">
-                    <h5>Security Features Active:</h5>
-                    <ul class="list-unstyled">
-                        <li>✅ Hardware-based device binding</li>
-                        <li>✅ Encrypted device credentials</li>
-                        <li>✅ Real-time integrity validation</li>
-                        <li>✅ Copy-resistant authentication</li>
-                    </ul>
+                <div class="status-card" id="encryptionStatusCard">
+                    <span class="status-icon">🔐</span>
+                    <div class="status-text">
+                        <h3>Encrypted</h3>
+                        <p>AES-256</p>
+                    </div>
                 </div>
-                
-                <div id="debugInfo" style="display: none;"></div>
-            </div>
+                <div class="status-card" id="authStatusCard">
+                    <span class="status-icon">✅</span>
+                    <div class="status-text">
+                        <h3>Authenticated</h3>
+                        <p id="authSinceText">--</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card device-panel">
+                <div class="panel-header">
+                    <span>📱 Device Information</span>
+                    <button id="copyDevice" class="text-button">Copy</button>
+                </div>
+                <div class="panel-content">
+                    <p>Device ID: <span id="deviceId">...</span></p>
+                    <p>Platform: <span id="devicePlatform">...</span></p>
+                    <p>Registered: <span id="deviceRegistered">...</span></p>
+                    <p>Last Validation: <span id="deviceLastValidation">...</span></p>
+                    <p>Integrity Score: <span id="deviceIntegrity">...</span></p>
+                </div>
+            </section>
+
+            <section class="card activity-timeline">
+                <div class="panel-header">📊 Recent Activity</div>
+                <ul id="activityList" class="timeline"></ul>
+            </section>
+
+            <section class="card quick-actions">
+                <div class="panel-header">⚡ Quick Actions</div>
+                <div class="actions-grid">
+                    <button id="refreshSession" class="secondary-button">🔄 Refresh Session</button>
+                    <button id="openSettings" class="secondary-button">⚙️ Settings</button>
+                    <button id="secureLogout" class="secondary-button">🚪 Secure Logout</button>
+                    <button id="showDeviceInfo" class="secondary-button">📱 Device Info</button>
+                    <button id="changePassword" class="secondary-button">🔐 Change Password</button>
+                    <button id="help" class="secondary-button">❓ Help</button>
+                </div>
+            </section>
         </main>
     </div>
+
     <script src="../js/storage.js"></script>
     <script src="../js/device.js"></script>
+    <script src="../js/dashboard-components.js"></script>
     <script src="../js/dashboard.js"></script>
 </body>
 </html>
+
