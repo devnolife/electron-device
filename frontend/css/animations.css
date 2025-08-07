@@ -1,0 +1,22 @@
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.status-card,
+.card {
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+.status-card:hover,
+.card:hover {
+  transition: box-shadow 0.2s;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
